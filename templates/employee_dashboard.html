@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - MAXELO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #1a3a5f 0%, #2c5282 100%);
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+            color: white;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            border: 1px solid #e1e8ed;
+        }
+
+        .card h2 {
+            color: #2c5282;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2 i {
+            color: #2c5282;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+        }
+
+        .info-item label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+
+        .info-item p {
+            color: #2d3748;
+            font-size: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .attendance-status {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .status-item {
+            padding: 1.2rem;
+            border-radius: 10px;
+            background: #f7fafc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            text-align: center;
+        }
+
+        .status-item h3 {
+            color: #4a5568;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .status-item p {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .clock-in-time {
+            color: #38a169 !important;
+        }
+
+        .clock-out-time {
+            color: #e53e3e !important;
+        }
+
+        .attendance-type {
+            color: #d69e2e !important;
+        }
+
+        .attendance-form {
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background-color: #f7fafc;
+        }
+
+        .radio-option input {
+            width: 20px;
+            height: 20px;
+            accent-color: #2c5282;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 1.8rem;
+            background: linear-gradient(90deg, #2c5282 0%, #1a3a5f 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(44, 82, 130, 0.3);
+            width: 100%;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 82, 130, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #38a169 0%, #2f855a 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #e53e3e 0%, #c53030 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(90deg, #718096 0%, #4a5568 100%);
+        }
+
+        .flash-messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .flash-messages ul {
+            list-style: none;
+        }
+
+        .flash-messages li {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            background: #f0fff4;
+            color: #38a169;
+            border-left: 4px solid #38a169;
+        }
+
+        .logout-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #2c5282;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            transition: color 0.3s ease;
+            padding: 0.8rem 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+            width: 100%;
+        }
+
+        .logout-link:hover {
+            color: #1a365d;
+            background: #f7fafc;
+        }
+
+        /* Register Records Section */
+        .register-records {
+            display: none;
+            margin-top: 1.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .register-records.active {
+            display: block;
+        }
+
+        .records-table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 500px;
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .records-table th {
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .records-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .records-table tr:hover {
+            background-color: #f7fafc;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-inprogress {
+            background-color: #fef5e7;
+            color: #744210;
+        }
+
+        .status-notstarted {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+
+        .today-highlight {
+            background-color: #ebf8ff;
+            border-left: 4px solid #2c5282;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (min-width: 768px) {
+            .dashboard-container {
+                padding: 2rem;
+            }
+
+            header {
+                padding: 1.5rem 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+
+            .user-info h1 {
+                font-size: 1.8rem;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+
+            .card {
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+
+            .attendance-status {
+                flex-direction: row;
+                justify-content: space-around;
+                margin: 2rem 0;
+            }
+
+            .status-item {
+                width: 45%;
+            }
+
+            .radio-group {
+                flex-direction: row;
+                gap: 2rem;
+            }
+
+            .btn {
+                width: auto;
+                margin-bottom: 0;
+            }
+
+            .logout-link {
+                width: auto;
+                margin-top: 2rem;
+            }
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+
+            textarea,
+            input {
+                font-size: 16px;
+                /* Prevent zoom on focus in iOS */
+            }
+
+            .btn {
+                -webkit-appearance: none;
+                /* Remove default iOS styling */
+            }
+        }
+
+        /* Android Chrome specific fixes */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            .btn {
+                -webkit-appearance: none;
+                /* Remove default Android styling */
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .completed-message {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f0fff4;
+            border-radius: 8px;
+            color: #22543d;
+            margin-bottom: 1rem;
+        }
+
+        .completed-message i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #38a169;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <div class="logo-section">
+                <img src="https://public-rf-upload.minhawebradio.net/244297/logo/a36c3dd8af8b4fc23f47b23f60f46a8c.jpg"
+                    alt="Maxelo Logo" style="width:50px; height:50px; object-fit:cover; border-radius: 8px;" />
+                <div class="logo-text">MAXELO ATS</div>
+            </div>
+            <div class="user-info">
+                <h1>
+                    Welcome,
+                    {% if user %}
+                    {{ user.name }} {{ user.surname }}
+                    {% else %}
+                    Employee
+                    {% endif %}
+                </h1>
+                <p>Date: {{ today or "N/A" }}</p>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            <ul>
+                {% for category, message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="dashboard-content">
+            <div class="card">
+                <h2><i class="fas fa-user"></i> Personal Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Email</label>
+                        <p>{{ user.email or "" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone</label>
+                        <p>{{ user.phoneNumber or "" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Role</label>
+                        <p>{{ user.role or "" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Position</label>
+                        <p>{{ user.position or "" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-clock"></i> Today's Attendance</h2>
+
+                <div class="attendance-status">
+                    <div class="status-item">
+                        <h3>Clock In</h3>
+                        <p class="clock-in-time">
+                            {% if clock_in_time %}
+                            {{ clock_in_time }}
+                            {% else %}
+                            Not yet
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="status-item">
+                        <h3>Clock Out</h3>
+                        <p class="clock-out-time">
+                            {% if clock_out_time %}
+                            {{ clock_out_time }}
+                            {% else %}
+                            Not yet
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <h3>Attendance Type</h3>
+                    <p class="attendance-type">
+                        {% if attendance_type %}
+                        {{ attendance_type }}
+                        {% else %}
+                        Not yet
+                        {% endif %}
+                    </p>
+                </div>
+
+
+
+
+                <div class="action-buttons">
+                    {% if not clock_in_time %}
+                    <div class="attendance-form">
+                        <form action="{{ url_for('clock_in') }}" method="POST">
+                            <div class="form-group">
+                                <label>Select Attendance Type</label>
+                                <div class="radio-group">
+                                    <div class="radio-option" style="background-color: #95dff1;">
+                                        <input type="radio" id="remote" name="attendanceType" value="Remote" required>
+                                        <label for="remote">Remote</label>
+                                    </div>
+                                    <div class="radio-option" style="background-color:#fff99f">
+                                        <input type="radio" id="office" name="attendanceType" value="Office" required>
+                                        <label for="office">Office</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notes">Notes (optional)</label>
+                                <textarea id="notes" name="notes"
+                                    placeholder="Your can give the reason when you are late..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Clock In
+                            </button>
+                        </form>
+                    </div>
+
+                    {% elif not clock_out_time %}
+                    <div class="attendance-form">
+                        <form action="{{ url_for('clock_out') }}" method="POST">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-sign-out-alt"></i> Clock Out
+                            </button>
+                        </form>
+                    </div>
+
+                    {% else %}
+                    <div class="completed-message">
+                        <i class="fas fa-check-circle"></i>
+                        <p>You have completed your attendance for today.</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- View Register Record Button -->
+                    <button id="viewRecordsBtn" class="btn btn-secondary">
+                        <i class="fas fa-eye"></i> View Attendance History
+                    </button>
+                </div>
+
+                <!-- Register Records Section -->
+                <div id="registerRecords" class="register-records">
+                    <h3><i class="fas fa-history"></i> Attendance History (Monthly)</h3>
+                    {% if attendance_records and attendance_records|length > 0 %}
+                    <div class="records-table-container">
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Clock In</th>
+                                    <th>Clock Out</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                <tr {% if record.date==today %}class="today-highlight" {% endif %}>
+                                    <td>{{ record.date or "N/A" }}</td>
+                                    <td>{{ record.clock_in or "N/A" }}</td>
+                                    <td>{{ record.clock_out or "N/A" }}</td>
+                                    <td>{{ record.notes or "N/A" }}</td>
+                                    <td>
+                                        {% if record.clock_in and record.clock_out %}
+                                        <span class="status-badge status-completed">Completed</span>
+                                        {% elif record.clock_in %}
+                                        <span class="status-badge status-inprogress">In Progress</span>
+                                        {% else %}
+                                        <span class="status-badge status-notstarted">Not Started</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="no-records">
+                        <p>No attendance records found.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <script>
+        // Toggle register records visibility
+        document.getElementById('viewRecordsBtn').addEventListener('click', function () {
+            const recordsSection = document.getElementById('registerRecords');
+            const isVisible = recordsSection.classList.contains('active');
+
+            if (isVisible) {
+                recordsSection.classList.remove('active');
+                this.innerHTML = '<i class="fas fa-eye"></i> View Attendance History';
+            } else {
+                recordsSection.classList.add('active');
+                this.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Attendance History';
+            }
+        });
+
+        // Prevent zoom on input focus in iOS
+        document.addEventListener('DOMContentLoaded', function () {
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function () {
+                        document.body.style.zoom = '100%';
+                    });
+                });
+            }
+
+            // Add today's date highlighting
+            const today = new Date().toISOString().split('T')[0];
+            const dateCells = document.querySelectorAll('.records-table td:first-child');
+            dateCells.forEach(cell => {
+                if (cell.textContent === today) {
+                    cell.closest('tr').classList.add('today-highlight');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Register</title>
+    <!-- Include necessary libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Your CSS styles remain exactly the same */
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .summary {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary h3 {
+            margin-bottom: 20px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .summary h3 i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h3 i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        .date-picker,
+        .search-input,
+        .role-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .register-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .register-table th {
+            background: var(--secondary);
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .register-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .register-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .register-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-office {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-remote {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-absent {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--gray);
+            font-style: italic;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="">
+                        <img src="https://public-rf-upload.minhawebradio.net/244297/logo/a36c3dd8af8b4fc23f47b23f60f46a8c.jpg"
+                            alt="Maxelo Logo" style="width:2cm; height:2cm; object-fit:cover;" />
+                    </i>
+                </div>
+                <div class="logo-text">Employee Attendance Register</div>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3><i class="fas fa-calendar-alt"></i> Select Date</h3>
+                <input type="date" id="datePicker" class="date-picker">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-filter"></i> Filter by Role</h3>
+                <select id="roleFilter" class="role-select">
+                    <option value="">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="employee">Employee</option>
+                    <option value="intern">Intern</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-download"></i> Export Options</h3>
+                <button id="downloadBtn" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button id="resetFilters" class="btn btn-danger" style="margin-top: 10px;">
+                    <i class="fas fa-undo"></i> Reset Filters
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            {% if attendance_records %}
+            <table class="register-table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>First Name</th>
+                        <th>Surname</th>
+                        <th>Role</th>
+                        <th>Clock In</th>
+                        <th>Clock Out</th>
+                        <th>Attendance Type</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceData">
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td class="index-col"></td>
+                        <td>{{ record[1] }}</td>
+                        <td>{{ record[2] }}</td>
+                        <td>{{ record[3] }}</td>
+                        <td>{{ record[4] or "Not yet" }}</td>
+                        <td>{{ record[5] or "Not yet" }}</td>
+                        <td>
+                            {% if record[6] %}
+                            {% set status = record[6].lower() %}
+                            <span class="status-badge 
+                                        {% if 'office' in status or 'present' in status %}status-office
+                                        {% elif 'remote' in status %}status-remote
+                                        {% elif 'absent' in status %}status-absent
+                                        {% endif %}">
+                                {{ record[6] }}
+                            </span>
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-results">No attendance records found.</p>
+            {% endif %}
+        </div>
+
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const { jsPDF } = window.jspdf;
+            const datePicker = document.getElementById('datePicker');
+            const roleFilter = document.getElementById('roleFilter');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetFiltersBtn = document.getElementById('resetFilters');
+            const attendanceData = document.getElementById('attendanceData');
+
+            // Default today’s date
+            const today = new Date();
+            datePicker.value = today.toISOString().split('T')[0];
+
+            // Renumber visible rows
+            function renumberRows() {
+                let rows = attendanceData.getElementsByTagName('tr');
+                let counter = 1;
+                for (let row of rows) {
+                    if (row.style.display !== 'none') {
+                        row.querySelector('.index-col').textContent = counter++;
+                    }
+                }
+            }
+
+            // Filtering
+            function filterAttendance() {
+                const selectedDate = datePicker.value;
+                const selectedRole = roleFilter.value;
+                const rows = attendanceData ? attendanceData.getElementsByTagName('tr') : [];
+                let visibleCount = 0;
+
+                for (let row of rows) {
+                    const roleCell = row.cells[3];
+                    const clockInCell = row.cells[4];
+                    const roleMatch = !selectedRole || roleCell.textContent === selectedRole;
+
+                    let dateMatch = false;
+                    if (clockInCell.textContent && clockInCell.textContent !== "Not yet") {
+                        const cellDate = new Date(clockInCell.textContent);
+                        if (!isNaN(cellDate)) {
+                            dateMatch = cellDate.toISOString().split('T')[0] === selectedDate;
+                        }
+                    }
+
+                    if (roleMatch && (!selectedDate || dateMatch)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+
+                renumberRows();
+            }
+
+            filterAttendance();
+            datePicker.addEventListener('change', filterAttendance);
+            roleFilter.addEventListener('change', filterAttendance);
+
+            resetFiltersBtn.addEventListener('click', function () {
+                datePicker.value = today.toISOString().split('T')[0];
+                roleFilter.value = '';
+                filterAttendance();
+            });
+
+            // Download PDF
+            downloadBtn.addEventListener('click', function () {
+                const doc = new jsPDF();
+                doc.setFontSize(18);
+                doc.text('Maxelo Employee Attendance Register', 14, 15);
+
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text(`Date: ${datePicker.value} | Role: ${roleFilter.value || 'All'}`, 14, 22);
+
+                const headers = ['NO', 'First Name', 'Surname', 'Role', 'Clock In', 'Clock Out', 'Attendance Type'];
+                const tableRows = [];
+                const rows = attendanceData.getElementsByTagName('tr');
+
+                for (let row of rows) {
+                    if (row.style.display !== 'none') {
+                        tableRows.push([...row.cells].map(cell => cell.textContent.trim()));
+                    }
+                }
+
+                doc.autoTable({
+                    head: [headers],
+                    body: tableRows,
+                    startY: 30,
+                    theme: 'grid',
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    headStyles: { fillColor: [44, 62, 80] }
+                });
+
+                doc.save(`attendance_${datePicker.value}_${roleFilter.value || 'all'}.pdf`);
+            });
+        });
+    </script>
+</body>
+
+</html>
