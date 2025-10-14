@@ -8,30 +8,24 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)
 
-# --- Database initialization ---
-def init_db():
-    try:
-        # Connect to the default PostgreSQL database to create our database
-        default_conn = psycopg2.connect(
+# --- Database connection ---
+def get_db_connection():
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL:
+        # Railway provides DATABASE_URL, use it directly
+        return psycopg2.connect(DATABASE_URL)
+    else:
+        # Local development fallback
+        return psycopg2.connect(
             host="localhost",
-            database="postgres",
+            database="maxelo_attendance_db",
             user="postgres",
             password="Maxelo@2023"
         )
-        default_conn.autocommit = True
-        default_cur = default_conn.cursor()
-        
-        # Check if database exists, create if it doesn't
-        default_cur.execute("SELECT 1 FROM pg_database WHERE datname = 'maxelo_attendance_db'")
-        exists = default_cur.fetchone()
-        if not exists:
-            default_cur.execute("CREATE DATABASE maxelo_attendance_db")
-            print("Database created successfully")
-        
-        default_cur.close()
-        default_conn.close()
-        
-        # Now connect to our database and create tables
+
+# --- Database initialization ---
+def init_tables_only():
+    try:
         conn = get_db_connection()
         cur = conn.cursor()
         
@@ -77,17 +71,10 @@ def init_db():
         print("Database tables initialized successfully")
         
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"Error initializing tables: {e}")
 
-# --- Database connection ---
-def get_db_connection():
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    if not DATABASE_URL:
-        DATABASE_URL = "postgresql://postgres:Maxelov%402023@localhost:5432/maxelo_attendance_db"
-    return psycopg2.connect(DATABASE_URL)
-
-# Initialize the database when the app starts
-init_db()
+# Initialize the tables when the app starts
+init_tables_only()
 
 # --- Index page ---
 @app.route('/')
@@ -395,7 +382,7 @@ def employee_dashboard():
         today=date.today(),
         clock_in_time=today_attendance[0] if today_attendance else None,
         clock_out_time=today_attendance[1] if today_attendance else None,
-        attendance_type=today_attendance[2] if today_attendance else None,  # ✅ FIXED
+        attendance_type=today_attendance[2] if today_attendance else None,
         attendance_records=[
             {
                 "date": rec[0],
@@ -406,7 +393,6 @@ def employee_dashboard():
         ],
         month_name=date.today().strftime("%B")
     )
-
 
 
 #--- Clock In ---
@@ -451,9 +437,8 @@ def clock_out():
     sa_timezone = pytz.timezone("Africa/Johannesburg")
     sa_time = datetime.now(sa_timezone)
 
-     # Format date and time separately (no seconds)
+    # Format date and time separately (no seconds)
     date_str = sa_time.strftime("%Y-%m-%d %H:%M")
-
 
     conn = get_db_connection()
     cur = conn.cursor()
@@ -468,41 +453,6 @@ def clock_out():
     if row:
         attendance_id = row[0]
         cur.execute("UPDATE AttendanceRegister SET clockOut = %s WHERE id = %s", (date_str, attendance_id))
-        conn.commit()
-        flash("Clocked out successfully!", "success")
-    else:
-        flash("No active clock-in found for today.", "warning")
-
-    cur.close()
-    conn.close()
-    return redirect(url_for('employee_dashboard'))
-    # Get South African time
-    sa_timezone = pytz.timezone("Africa/Johannesburg")
-    sa_time = datetime.now(sa_timezone)
-
-
-    # Format date and time separately (no seconds)
-    date_str = sa_time.strftime("%Y-%m-%d")
-    time_str = sa_time.strftime("%H:%M")
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    # Get latest clocked-in record without clockOut
-    cur.execute("""
-        SELECT id FROM AttendanceRegister
-        WHERE employee_id = %s AND clockOutTime IS NULL
-        ORDER BY clockInDate DESC, clockInTime DESC LIMIT 1
-    """, (session['user_id'],))
-    row = cur.fetchone()
-
-    if row:
-        attendance_id = row[0]
-        cur.execute("""
-            UPDATE AttendanceRegister
-            SET clockOutDate = %s, clockOutTime = %s
-            WHERE id = %s
-        """, (date_str, time_str, attendance_id))
         conn.commit()
         flash("Clocked out successfully!", "success")
     else:
@@ -631,4 +581,5 @@ def delete_employee(employee_id):
 
 # --- Run App ---
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
