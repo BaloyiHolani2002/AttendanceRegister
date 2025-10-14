@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime, timedelta, date
 import pytz
-import psycopg2
+import pg8000
 import os
 
 app = Flask(__name__)
@@ -12,11 +12,20 @@ app.permanent_session_lifetime = timedelta(days=7)
 def get_db_connection():
     DATABASE_URL = os.getenv("DATABASE_URL")
     if DATABASE_URL:
-        # Railway provides DATABASE_URL, use it directly
-        return psycopg2.connect(DATABASE_URL)
+        # Parse DATABASE_URL for pg8000
+        from urllib.parse import urlparse
+        url = urlparse(DATABASE_URL)
+        
+        return pg8000.connect(
+            host=url.hostname,
+            port=url.port,
+            database=url.path[1:],  # Remove leading slash
+            user=url.username,
+            password=url.password
+        )
     else:
         # Local development fallback
-        return psycopg2.connect(
+        return pg8000.connect(
             host="localhost",
             database="maxelo_attendance_db",
             user="postgres",
